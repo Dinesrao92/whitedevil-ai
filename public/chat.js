@@ -1,6 +1,6 @@
 /**
- * WhiteDevil v5.0 dashboard
- * Client-side session chat only. No keys, persistence or third-party scripts.
+ * WhiteDevil v5.1 dashboard
+ * History is saved only after a complete AI response and verified by the Worker.
  * AI responses are streamed from the existing /api/chat Workers AI endpoint.
  */
 "use strict";
@@ -17,8 +17,16 @@ const mobileMenu = document.getElementById("mobile-menu");
 const sidebarClose = document.getElementById("sidebar-close");
 const mobileOverlay = document.getElementById("mobile-overlay");
 const toast = document.getElementById("toast");
+const historyList = document.getElementById("history-list");
+const memoryStatus = document.getElementById("memory-status");
+const refreshHistoryButton = document.getElementById("refresh-history");
+let conversationId = null;
+let memoryEnabled = false;
+let historyLoading = false;
+let savedConversations = [];
 
-const WELCOME = "Hello Dines! I'm WhiteDevil v5.0, ready to help with construction work, planning, learning, code or demo forex research. Choose a shortcut or ask me anything.";
+
+const WELCOME = "Hello Dines! I'm WhiteDevil v5.1, ready to help with construction work, planning, learning, code or demo forex research. Choose a shortcut or ask me anything.";
 const MAX_HISTORY = 38;
 const MODES = {
   overview: "General assistant",
@@ -108,6 +116,7 @@ function setBusy(busy) {
   userInput.disabled = busy;
   sendButton.disabled = busy;
   newChatButton.disabled = busy;
+  refreshHistoryButton.disabled = busy;
   typingIndicator.classList.toggle("visible", busy);
   chatMessages.setAttribute("aria-busy", String(busy));
 }
@@ -141,6 +150,148 @@ function readTextChunk(data) {
   } catch (error) {
     console.warn("Could not parse streamed response event", error);
     return "";
+  }
+}
+
+
+/** Cloudflare Access JWT is verified by the backend; never supply an owner ID. */
+async function historyRequest(path, options = {}) {
+  const response = await fetch("/api/history" + path, {
+    ...options,
+    headers: { "content-type": "application/json", ...(options.headers || {}) },
+    cache: "no-store",
+    credentials: "same-origin",
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.error || ("History service error (" + response.status + ")"));
+  return body;
+}
+
+function updateMemoryStatus(message) {
+  memoryStatus.textContent = message;
+}
+
+function drawHistoryList() {
+  historyList.replaceChildren();
+  if (!memoryEnabled) {
+    const hint = document.createElement("p");
+    hint.className = "history-empty";
+    hint.textContent = "Saved history unavailable. Chat still works.";
+    historyList.appendChild(hint);
+    return;
+  }
+  if (!savedConversations.length) {
+    const hint = document.createElement("p");
+    hint.className = "history-empty";
+    hint.textContent = "No saved conversations yet.";
+    historyList.appendChild(hint);
+    return;
+  }
+  for (const item of savedConversations) {
+    const entry = document.createElement("div");
+    entry.className = "history-entry";
+    const load = document.createElement("button");
+    load.type = "button";
+    load.className = "history-load" + (conversationId === item.id ? " selected" : "");
+    load.textContent = item.title;
+    load.title = item.title;
+    load.addEventListener("click", () => { void openSavedConversation(item.id); });
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "history-delete";
+    remove.textContent = "×";
+    remove.title = "Delete this saved conversation";
+    remove.setAttribute("aria-label", "Delete saved conversation: " + item.title);
+    remove.addEventListener("click", () => { void deleteSavedConversation(item.id, item.title); });
+    entry.append(load, remove);
+    historyList.appendChild(entry);
+  }
+}
+
+async function refreshHistory() {
+  if (historyLoading) return;
+  historyLoading = true;
+  try {
+    const result = await historyRequest("");
+    savedConversations = result.conversations || [];
+    memoryEnabled = true;
+    updateMemoryStatus("Saved securely in Cloudflare D1");
+  } catch (error) {
+    memoryEnabled = false;
+    updateMemoryStatus("Session-only · Memory unavailable");
+    console.warn("History unavailable:", error);
+  } finally {
+    historyLoading = false;
+    drawHistoryList();
+  }
+}
+
+async function openSavedConversation(id) {
+  if (isProcessing) return showToast("Wait for the current response first.");
+  try {
+    const { conversation } = await historyRequest("/" + encodeURIComponent(id));
+    if (!conversation || !Array.isArray(conversation.messages)) throw new Error("Invalid history data");
+    conversationId = conversation.id;
+    chatMessages.replaceChildren();
+    chatHistory = conversation.messages.filter(item =>
+      (item.role === "user" || item.role === "assistant") && typeof item.content === "string"
+    ).slice(-MAX_HISTORY);
+    if (!chatHistory.length) createMessage("assistant", WELCOME);
+    for (const msg of conversation.messages) {
+      if ((msg.role === "user" || msg.role === "assistant") && typeof msg.content === "string") {
+        createMessage(msg.role, msg.content);
+      }
+    }
+    const lastUser = [...chatHistory].reverse().find(m => m.role === "user");
+    setMode(lastUser ? (inferMode(lastUser.content) || "overview") : "overview");
+    closeNavigation();
+    drawHistoryList();
+    updateMemoryStatus("Saved securely in Cloudflare D1");
+  } catch (error) {
+    showToast(error instanceof Error ? error.message : "Couldn't load conversation");
+  }
+}
+
+async function deleteSavedConversation(id, title) {
+  if (isProcessing) return showToast("Wait for the current response first.");
+  if (!confirm('Permanently delete "' + title + '"? This cannot be undone.')) return;
+  try {
+    await historyRequest("/" + encodeURIComponent(id), { method: "DELETE" });
+    if (conversationId === id) {
+      conversationId = null;
+      chatHistory = [];
+      chatMessages.replaceChildren();
+      createMessage("assistant", WELCOME);
+      setMode("overview");
+    }
+    await refreshHistory();
+    showToast("Saved conversation deleted.");
+  } catch (error) {
+    showToast(error instanceof Error ? error.message : "Couldn't delete conversation");
+  }
+}
+
+async function persistCurrentConversation() {
+  if (!memoryEnabled || chatHistory.length < 2) return;
+  const lastMessage = chatHistory[chatHistory.length - 1];
+  if (lastMessage.role !== "assistant") return;
+  try {
+    const title = (chatHistory.find(m => m.role === "user")?.content || "New conversation").replace(/\s+/g, " ").slice(0, 90);
+    if (!conversationId) {
+      const created = await historyRequest("", { method: "POST", body: JSON.stringify({ title }) });
+      conversationId = created.id;
+    }
+    await historyRequest("/" + encodeURIComponent(conversationId), {
+      method: "PUT",
+      body: JSON.stringify({ messages: chatHistory, title }),
+    });
+    updateMemoryStatus("Saved securely in Cloudflare D1");
+    // Refresh the sidebar after a successful save.
+    await refreshHistory();
+  } catch (error) {
+    updateMemoryStatus("Not saved · Chat continues");
+    showToast("AI replied, but history wasn't saved. Copy anything important.");
+    console.warn("Could not save conversation:", error);
   }
 }
 
@@ -211,6 +362,7 @@ async function sendMessage(raw) {
     }
     if (responseText.trim()) {
       chatHistory.push({ role: "assistant", content: responseText });
+      await persistCurrentConversation();
     } else {
       assistantText.textContent = "I couldn't generate a response this time. Please try again.";
     }
@@ -232,12 +384,14 @@ async function sendMessage(raw) {
 function resetChat() {
   if (isProcessing) return;
   chatHistory = [];
+  conversationId = null;
   chatMessages.replaceChildren();
   createMessage("assistant", WELCOME);
   setMode("overview");
   userInput.value = "";
   updateTextareaHeight();
-  showToast("New conversation started. Previous messages were cleared.");
+  drawHistoryList();
+  showToast("New conversation started. Existing saved chats remain available.");
   userInput.focus();
 }
 
@@ -277,3 +431,6 @@ mobileOverlay.addEventListener("click", closeNavigation);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closeNavigation();
 });
+
+refreshHistoryButton.addEventListener("click", () => { if (!isProcessing) void refreshHistory(); });
+void refreshHistory();

@@ -216,3 +216,17 @@ svg.icon { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-w
 }
 @media (max-width: 475px) { .feature-grid { grid-template-columns: 1fr; gap: 9px; } .feature-card { min-height: 0; padding: 13px 14px; display: grid; grid-template-columns: 34px 1fr; column-gap: 12px; } .feature-top { display: contents; } .feature-icon { grid-row: 1 / 4; align-self: start; } .feature-go { position: absolute; right: 12px; top: 14px; } .feature-card strong { grid-column: 2; font-size: 12px; padding-right: 25px; } .feature-description { grid-column: 2; margin-top: 3px; } .feature-tag { grid-column: 2; padding-top: 6px; } .new-chat-button { padding: 9px; } .new-chat-button span { display: none; } .suggestion-row { gap: 6px; } .chat-head-middle { display: none; } .suggestion-chip { font-size: 10px; } }
 @media (prefers-reduced-motion: reduce) { *, *:before, *:after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+
+/* WhiteDevil v5.1 saved conversation history */
+.history-section { padding: 22px 2px 8px; border-top: 1px solid #293044; margin-top: 24px; }
+.history-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 10px 10px; font-size: 9px; font-weight: 750; color: #8892ab; letter-spacing: 1.4px; }
+.history-heading button { border: 0; color: #afa6cf; background: transparent; font-size: 18px; line-height: 1; padding: 4px; }
+.history-list { display: flex; flex-direction: column; gap: 3px; max-height: min(33vh, 260px); overflow-y: auto; scrollbar-color: #3c4158 transparent; }
+.history-entry { display: flex; align-items: center; border: 1px solid transparent; border-radius: 8px; }
+.history-entry:hover { background: #1e2535; }
+.history-entry:has(.history-load.selected) { border-color: #483b70; background: #282540; }
+.history-load { border: 0; min-width: 0; flex: 1; padding: 8px 9px; text-align: left; color: #aeb8c9; background: transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+.history-load.selected { color: #e5dafa; }
+.history-delete { flex: 0 0 25px; border: 0; background: transparent; color: #a99db7; font-size: 18px; border-radius: 6px; line-height: 1; }
+.history-delete:hover { color: #ff9da7; background: #542e42; }
+.history-empty { font-size: 10px; color: #73809a; padding: 8px 10px; line-height: 1.6; }
