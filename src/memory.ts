@@ -77,7 +77,7 @@ async function verifyAccess(request: Request, env: Env): Promise<AccessClaims | 
     if (typeof payload.nbf === "number" && payload.nbf > now + 60) return null;
     if (typeof payload.email !== "string" || payload.email.toLowerCase() !== env.MEMORY_OWNER_EMAIL.toLowerCase()) return null;
     const keys = await getKeys(expectedIssuer);
-    const jwk = keys.find(key => key.kid === header.kid && key.kty === "RSA" && (!key.alg || key.alg === "RS256"));
+    const jwk = keys.find(key => { const signingKey = key as JsonWebKey & { kid?: string; alg?: string }; return signingKey.kid === header.kid && signingKey.kty === "RSA" && (!signingKey.alg || signingKey.alg === "RS256"); });
     if (!jwk) return null;
     const publicKey = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
     const signed = new TextEncoder().encode(parts[0] + "." + parts[1]);
