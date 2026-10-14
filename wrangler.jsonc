@@ -18,5 +18,10 @@
 	"ai": {
 		"binding": "AI"
 	},
+	"previews": {
+		"ai": {
+			"binding": "AI"
+		}
+	},
 	"upload_source_maps": true
 }
