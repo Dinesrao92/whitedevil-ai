@@ -15,7 +15,7 @@ let chatHistory = [
 	{
 		role: "assistant",
 		content:
-			"Hello! I'm an LLM chat app powered by Cloudflare Workers AI. How can I help you today?",
+			"Hello Dines! I'm WhiteDevil v5.0. Type /help to see my modes.",
 	},
 ];
 let isProcessing = false;
@@ -201,7 +201,9 @@ async function sendMessage() {
 function addMessageToChat(role, content) {
 	const messageEl = document.createElement("div");
 	messageEl.className = `message ${role}-message`;
-	messageEl.innerHTML = `<p>${content}</p>`;
+	const paragraph = document.createElement("p");
+	paragraph.textContent = content;
+	messageEl.appendChild(paragraph);
 	chatMessages.appendChild(messageEl);
 
 	// Scroll to bottom
