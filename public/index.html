@@ -1,182 +1,164 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>WhiteDevil v5.0</title>
-		<style>
-			:root {
-				--primary-color: #f6821f;
-				--primary-hover: #e67e22;
-				--light-bg: #f9fafb;
-				--border-color: #e5e7eb;
-				--text-color: #1f2937;
-				--text-light: #6b7280;
-				--user-msg-bg: #fff2e6;
-				--assistant-msg-bg: #f3f4f6;
-			}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0d16" />
+  <meta name="description" content="WhiteDevil v5.0 — your private AI command center for construction coordination, work, planning, learning and demo forex." />
+  <title>WhiteDevil v5.0 | Command Center</title>
+  <link rel="stylesheet" href="/dashboard.css" />
+  <script src="/chat.js" defer></script>
+</head>
+<body>
+  <svg class="svg-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <symbol id="ic-spark" viewBox="0 0 24 24"><path d="m12 2 1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9L12 2ZM19 17l.7 2.3L22 20l-2.3.7L19 23l-.7-2.3L16 20l2.3-.7L19 17Z"/></symbol>
+    <symbol id="ic-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="ic-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13c6 3 12 3 18 0M11 13h2"/></symbol>
+    <symbol id="ic-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 16l4-5 3 3 6-8"/></symbol>
+    <symbol id="ic-book" viewBox="0 0 24 24"><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Zm0 0v14"/></symbol>
+    <symbol id="ic-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-14-3 18"/></symbol>
+    <symbol id="ic-bulb" viewBox="0 0 24 24"><path d="M9 18h6m-5 3h4M8 15c-1.8-1.4-3-3.2-3-5a7 7 0 1 1 14 0c0 1.8-1.2 3.6-3 5l-1 3H9l-1-3Z"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="ic-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></symbol>
+    <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+    <symbol id="ic-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="ic-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm0 0v6h6M8 13h8m-8 4h8"/></symbol>
+    <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="ic-message" viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.6 0-3-.4-4.2-1.1L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></symbol>
+    <symbol id="ic-zap" viewBox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 10-12h-7l0-8Z"/></symbol>
+  </svg>
 
-			* {
-				box-sizing: border-box;
-				margin: 0;
-				padding: 0;
-			}
+  <div class="app-shell" id="app-shell">
+    <div class="mobile-overlay" id="mobile-overlay" hidden></div>
+    <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+      <div class="brand">
+        <div class="brand-mark"><svg class="icon brand-spark"><use href="#ic-spark"/></svg></div>
+        <div class="brand-copy"><strong>WhiteDevil<span class="brand-dot">.</span></strong><small>AI COMMAND CENTER</small></div>
+        <button class="icon-button sidebar-close" id="sidebar-close" type="button" aria-label="Close navigation"><svg class="icon"><use href="#ic-close"/></svg></button>
+      </div>
 
-			body {
-				font-family:
-					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-					Cantarell, sans-serif;
-				line-height: 1.6;
-				color: var(--text-color);
-				max-width: 800px;
-				margin: 0 auto;
-				padding: 1rem;
-			}
+      <div class="sidebar-inner">
+        <div class="workspace-label"><span class="workspace-avatar">W</span><span><strong>Personal workspace</strong><small>WhiteDevil v5.0</small></span><span class="workspace-chevron">⌄</span></div>
 
-			header {
-				text-align: center;
-				margin-bottom: 2rem;
-				padding: 1rem 0;
-				border-bottom: 1px solid var(--border-color);
-			}
+        <div class="nav-heading">WORKSPACE</div>
+        <nav class="nav-list" aria-label="Assistant modes">
+          <button type="button" class="nav-item active" data-mode="overview" data-command="/help" aria-current="page"><svg class="icon"><use href="#ic-grid"/></svg><span>Overview</span><span class="nav-key">01</span></button>
+          <button type="button" class="nav-item" data-mode="work" data-command="/work"><svg class="icon"><use href="#ic-briefcase"/></svg><span>Work & construction</span></button>
+          <button type="button" class="nav-item" data-mode="forex" data-command="/forex"><svg class="icon"><use href="#ic-chart"/></svg><span>Forex lab</span><span class="nav-mini">DEMO</span></button>
+          <button type="button" class="nav-item" data-mode="study" data-command="/study"><svg class="icon"><use href="#ic-book"/></svg><span>Study & learning</span></button>
+          <button type="button" class="nav-item" data-mode="build" data-command="/build"><svg class="icon"><use href="#ic-code"/></svg><span>Build & coding</span></button>
+          <button type="button" class="nav-item" data-mode="personal" data-command="/personal"><svg class="icon"><use href="#ic-bulb"/></svg><span>Personal assistant</span></button>
+        </nav>
 
-			h1 {
-				font-size: 1.5rem;
-				color: var(--primary-color);
-			}
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-note">
+          <span class="sidebar-note-icon"><svg class="icon"><use href="#ic-zap"/></svg></span>
+          <strong>One assistant. Many modes.</strong>
+          <p>Choose a workspace or start with a question. WhiteDevil adapts to the task.</p>
+        </div>
+        <div class="sidebar-bottom"><span class="profile-avatar">D</span><div><strong>Dines</strong><small>Workspace owner</small></div><span class="profile-dots" aria-hidden="true">•••</span></div>
+      </div>
+    </aside>
 
-			.chat-container {
-				display: flex;
-				flex-direction: column;
-				height: calc(100vh - 200px);
-				min-height: 400px;
-				border: 1px solid var(--border-color);
-				border-radius: 8px;
-				overflow: hidden;
-			}
+    <main class="main-area">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="icon-button mobile-menu" id="mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg class="icon"><use href="#ic-menu"/></svg></button>
+          <span class="breadcrumb">Workspace</span><span class="slash">/</span><span class="breadcrumb-current">Command center</span>
+        </div>
+        <div class="topbar-right"><span class="topbar-separator"></span><span class="access-pill"><svg class="icon"><use href="#ic-shield"/></svg>Cloudflare Access</span><span class="top-avatar">D</span></div>
+      </div>
 
-			.chat-messages {
-				flex: 1;
-				overflow-y: auto;
-				padding: 1rem;
-				background-color: var(--light-bg);
-			}
+      <div class="main-content">
+        <section class="welcome-section" aria-labelledby="welcome-title">
+          <div class="eyebrow"><span class="eyebrow-line"></span> YOUR AI WORKSPACE <span class="eyebrow-tiny">/ v5.0</span></div>
+          <h1 id="welcome-title">Good to see you, <span>Dines.</span></h1>
+          <p class="welcome-subtitle">One place to think, plan, coordinate and create. What are we working on today?</p>
+        </section>
 
-			.message {
-				margin-bottom: 1rem;
-				padding: 0.75rem;
-				border-radius: 8px;
-				max-width: 80%;
-			}
+        <section class="feature-grid" aria-label="Get started">
+          <button type="button" class="feature-card feature-work" data-prompt="/work Help me prioritize today's architectural and MEP coordination tasks." data-mode="work">
+            <span class="feature-top"><span class="feature-icon"><svg class="icon"><use href="#ic-briefcase"/></svg></span><svg class="icon feature-go"><use href="#ic-arrow-right"/></svg></span>
+            <strong>Work & coordination</strong><span class="feature-description">RFIs, drawings, meetings & site issues</span>
+            <span class="feature-tag">CONSTRUCTION</span>
+          </button>
+          <button type="button" class="feature-card feature-personal" data-prompt="/plan Help me build a focused priority list for today." data-mode="personal">
+            <span class="feature-top"><span class="feature-icon"><svg class="icon"><use href="#ic-bulb"/></svg></span><svg class="icon feature-go"><use href="#ic-arrow-right"/></svg></span>
+            <strong>Think & plan</strong><span class="feature-description">Research, decisions, ideas & productivity</span>
+            <span class="feature-tag">EVERYDAY ASSISTANT</span>
+          </button>
+          <button type="button" class="feature-card feature-forex" data-prompt="/forex Help me create a demo-only forex analysis and risk checklist. Do not assume live market data." data-mode="forex">
+            <span class="feature-top"><span class="feature-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><svg class="icon feature-go"><use href="#ic-arrow-right"/></svg></span>
+            <strong>Forex research lab</strong><span class="feature-description">Strategies, journals & demo risk plans</span>
+            <span class="feature-tag">DEMO ONLY</span>
+          </button>
+        </section>
 
-			.message p {
-				white-space: pre-line;
-				margin: 0;
-				overflow-wrap: anywhere;
-			}
+        <section class="chat-panel" aria-labelledby="chat-heading">
+          <div class="chat-panel-head">
+            <div class="chat-title-block">
+              <span class="chat-title-icon"><svg class="icon"><use href="#ic-message"/></svg></span>
+              <div><h2 id="chat-heading">AI conversation</h2><p><span class="live-dot"></span><span id="mode-label">General assistant</span><span class="chat-head-middle"> · </span>powered by Workers AI</p></div>
+            </div>
+            <button id="new-chat" type="button" class="new-chat-button"><svg class="icon"><use href="#ic-plus"/></svg><span>New chat</span></button>
+          </div>
 
-			.user-message {
-				background-color: var(--user-msg-bg);
-				align-self: flex-end;
-				margin-left: auto;
-			}
+          <div class="chat-messages" id="chat-messages" aria-live="polite" aria-label="Conversation messages">
+            <div class="message assistant-message">
+              <span class="message-avatar assistant-avatar"><svg class="icon"><use href="#ic-spark"/></svg></span>
+              <div class="message-inner"><span class="message-meta">WHITEDEVIL <span>·</span> AI ASSISTANT</span><p>Hello Dines! I'm WhiteDevil v5.0, ready to help with construction work, planning, learning, code or demo forex research. Choose a shortcut or ask me anything.</p></div>
+            </div>
+          </div>
 
-			.assistant-message {
-				background-color: var(--assistant-msg-bg);
-				align-self: flex-start;
-			}
+          <div class="typing-indicator" id="typing-indicator" role="status" aria-live="polite"><span class="typing-dots"><i></i><i></i><i></i></span> WhiteDevil is thinking...</div>
 
-			.message-input {
-				display: flex;
-				padding: 0.75rem;
-				border-top: 1px solid var(--border-color);
-				background-color: white;
-			}
+          <div class="chat-compose">
+            <div class="suggestion-label">QUICK START <span>→</span></div>
+            <div class="suggestion-row" id="suggestions">
+              <button type="button" class="suggestion-chip" data-prompt="/rfi Help me draft a construction coordination RFI. Ask for the drawing references and unresolved issue."><svg class="icon"><use href="#ic-file"/></svg>Draft an RFI</button>
+              <button type="button" class="suggestion-chip" data-prompt="/meeting Create a concise architectural coordination meeting minutes template."><svg class="icon"><use href="#ic-clock"/></svg>Meeting minutes</button>
+              <button type="button" class="suggestion-chip" data-prompt="/risk Explain a demo-only forex risk management checklist."><svg class="icon"><use href="#ic-chart"/></svg>Risk checklist</button>
+              <button type="button" class="suggestion-chip" data-prompt="/help"><svg class="icon"><use href="#ic-spark"/></svg>All commands</button>
+            </div>
+            <form id="chat-form" class="message-input">
+              <label class="visually-hidden" for="user-input">Message WhiteDevil</label>
+              <textarea id="user-input" rows="1" maxlength="12000" placeholder="Message WhiteDevil..." autocomplete="off"></textarea>
+              <button type="submit" id="send-button" class="send-button" aria-label="Send message"><svg class="icon"><use href="#ic-arrow"/></svg></button>
+            </form>
+            <div class="compose-footer"><span>Press <kbd>Enter</kbd> to send · <kbd>Shift + Enter</kbd> for a new line</span><span>Session-only chat · Not saved</span></div>
+          </div>
+        </section>
 
-			#user-input {
-				flex: 1;
-				padding: 0.75rem;
-				border: 1px solid var(--border-color);
-				border-radius: 4px;
-				font-family: inherit;
-				resize: none;
-				min-height: 44px;
-			}
+        <div class="main-footer"><span>WhiteDevil v5.0 <span class="footer-bullet">·</span> Designed for focused work</span><span>AI can make mistakes. Verify important details.</span></div>
+      </div>
+    </main>
 
-			#send-button {
-				margin-left: 0.5rem;
-				padding: 0 1rem;
-				background-color: var(--primary-color);
-				color: white;
-				border: none;
-				border-radius: 4px;
-				cursor: pointer;
-				transition: background-color 0.2s;
-			}
+    <aside class="rightbar" aria-label="Shortcuts and status">
+      <div class="rightbar-heading"><span class="eyebrow-line"></span> AT A GLANCE</div>
+      <div class="rightbar-greeting"><span class="rightbar-icon"><svg class="icon"><use href="#ic-spark"/></svg></span><div><strong>Your command center</strong><p>Ready when you are.</p></div></div>
 
-			#send-button:hover {
-				background-color: var(--primary-hover);
-			}
+      <div class="right-section-heading">QUICK ACTIONS</div>
+      <div class="right-actions">
+        <button type="button" class="right-action" data-prompt="/drawing Help me review an architectural drawing coordination issue. Ask me for discipline, drawing number and conflict."><svg class="icon"><use href="#ic-file"/></svg><span><strong>Drawing review</strong><small>Identify coordination gaps</small></span><svg class="icon right-arrow"><use href="#ic-arrow-right"/></svg></button>
+        <button type="button" class="right-action" data-prompt="/email Help me write a professional construction coordination email. Ask for the recipient, topic and requested action."><svg class="icon"><use href="#ic-message"/></svg><span><strong>Draft an email</strong><small>Clear, professional writing</small></span><svg class="icon right-arrow"><use href="#ic-arrow-right"/></svg></button>
+        <button type="button" class="right-action" data-prompt="/study Help me plan a focused study session around my work schedule."><svg class="icon"><use href="#ic-book"/></svg><span><strong>Study support</strong><small>Learn with less friction</small></span><svg class="icon right-arrow"><use href="#ic-arrow-right"/></svg></button>
+        <button type="button" class="right-action" data-prompt="/build Help me plan a small software feature with clear steps and no paid dependencies."><svg class="icon"><use href="#ic-code"/></svg><span><strong>Build something</strong><small>Plan, code, improve</small></span><svg class="icon right-arrow"><use href="#ic-arrow-right"/></svg></button>
+      </div>
 
-			#send-button:disabled {
-				background-color: var(--text-light);
-				cursor: not-allowed;
-			}
-
-			.typing-indicator {
-				display: none;
-				font-style: italic;
-				color: var(--text-light);
-				padding: 1rem;
-			}
-
-			.typing-indicator.visible {
-				display: block;
-			}
-
-			footer {
-				margin-top: 1rem;
-				text-align: center;
-				font-size: 0.85rem;
-				color: var(--text-light);
-			}
-		</style>
-	</head>
-	<body>
-		<header>
-			<h1>WhiteDevil v5.0</h1>
-			<p>Private AI command center · Powered by Cloudflare Workers AI</p>
-		</header>
-
-		<div class="chat-container">
-			<div id="chat-messages" class="chat-messages">
-				<div class="message assistant-message">
-					<p>
-						Hello Dines! I'm WhiteDevil v5.0. Type /help to see my modes.
-					</p>
-				</div>
-			</div>
-
-			<div class="typing-indicator" id="typing-indicator">
-				AI is thinking...
-			</div>
-
-			<div class="message-input">
-				<textarea
-					id="user-input"
-					placeholder="Type your message here..."
-					rows="1"
-					autofocus
-				></textarea>
-				<button id="send-button">Send</button>
-			</div>
-		</div>
-
-		<footer>
-			<p>WhiteDevil v5.0 · Construction · Personal · Demo Forex</p>
-		</footer>
-
-		<!-- Chat app script -->
-		<script src="chat.js"></script>
-	</body>
+      <div class="right-section-heading right-section-margin">WORKSPACE NOTES</div>
+      <div class="status-card">
+        <span class="status-icon"><svg class="icon"><use href="#ic-shield"/></svg></span>
+        <strong>Private workspace</strong>
+        <p>Access is managed through your Cloudflare settings. Conversations on this page are not permanently stored.</p>
+        <div class="status-row"><span class="status-check">✓</span> Workers AI backend</div>
+        <div class="status-row"><span class="status-check">✓</span> Mobile-ready interface</div>
+        <div class="status-row"><span class="status-demo">●</span> Forex: research & demo only</div>
+      </div>
+      <div class="rightbar-footer">Made for the way you work. <span>✦</span></div>
+    </aside>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
 </html>
