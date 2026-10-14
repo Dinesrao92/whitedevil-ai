@@ -63,6 +63,11 @@ async function sendMessage() {
 
 	// Add message to history
 	chatHistory.push({ role: "user", content: message });
+	// Keep a sliding window of recent messages so long chats do not hit the API's
+	// 40-message validation limit. The UI still displays older messages.
+	if (chatHistory.length > 38) {
+		chatHistory = chatHistory.slice(-38);
+	}
 
 	try {
 		// Create new assistant response element
