@@ -15,7 +15,7 @@ let chatHistory = [
 	{
 		role: "assistant",
 		content:
-			"Hello! I'm an LLM chat app powered by Cloudflare Workers AI. How can I help you today?",
+			"Hello Dines! I'm WhiteDevil v5.0. Type /help to see my modes.",
 	},
 ];
 let isProcessing = false;
@@ -63,6 +63,11 @@ async function sendMessage() {
 
 	// Add message to history
 	chatHistory.push({ role: "user", content: message });
+	// Keep a sliding window of recent messages so long chats do not hit the API's
+	// 40-message validation limit. The UI still displays older messages.
+	if (chatHistory.length > 38) {
+		chatHistory = chatHistory.slice(-38);
+	}
 
 	try {
 		// Create new assistant response element
@@ -201,7 +206,9 @@ async function sendMessage() {
 function addMessageToChat(role, content) {
 	const messageEl = document.createElement("div");
 	messageEl.className = `message ${role}-message`;
-	messageEl.innerHTML = `<p>${content}</p>`;
+	const paragraph = document.createElement("p");
+	paragraph.textContent = content;
+	messageEl.appendChild(paragraph);
 	chatMessages.appendChild(messageEl);
 
 	// Scroll to bottom
