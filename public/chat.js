@@ -22,12 +22,13 @@ const memoryStatus = document.getElementById("memory-status");
 const refreshHistoryButton = document.getElementById("refresh-history");
 let conversationId = null;
 let memoryEnabled = false;
+let saveFailed = false;
 let historyLoading = false;
 let savedConversations = [];
 
 
 const WELCOME = "Hello Dines! I'm WhiteDevil v5.1, ready to help with construction work, planning, learning, code or demo forex research. Choose a shortcut or ask me anything.";
-const MAX_HISTORY = 38;
+const MAX_REQUEST_MESSAGES = 38;
 const MODES = {
   overview: "General assistant",
   work: "Work & construction",
@@ -215,10 +216,10 @@ async function refreshHistory() {
     const result = await historyRequest("");
     savedConversations = result.conversations || [];
     memoryEnabled = true;
-    updateMemoryStatus("Saved securely in Cloudflare D1");
+    if (!saveFailed) updateMemoryStatus("Saved securely in Cloudflare D1");
   } catch (error) {
     memoryEnabled = false;
-    updateMemoryStatus("Session-only · Memory unavailable");
+    if (!saveFailed) updateMemoryStatus("Session-only · Memory unavailable");
     console.warn("History unavailable:", error);
   } finally {
     historyLoading = false;
@@ -232,10 +233,11 @@ async function openSavedConversation(id) {
     const { conversation } = await historyRequest("/" + encodeURIComponent(id));
     if (!conversation || !Array.isArray(conversation.messages)) throw new Error("Invalid history data");
     conversationId = conversation.id;
+    saveFailed = false;
     chatMessages.replaceChildren();
     chatHistory = conversation.messages.filter(item =>
       (item.role === "user" || item.role === "assistant") && typeof item.content === "string"
-    ).slice(-MAX_HISTORY);
+    );
     if (!chatHistory.length) createMessage("assistant", WELCOME);
     for (const msg of conversation.messages) {
       if ((msg.role === "user" || msg.role === "assistant") && typeof msg.content === "string") {
@@ -272,7 +274,9 @@ async function deleteSavedConversation(id, title) {
 }
 
 async function persistCurrentConversation() {
-  if (!memoryEnabled || chatHistory.length < 2) return;
+  // The initial history listing may still be loading. Let the backend decide
+  // whether saving is available instead of silently dropping a completed reply.
+  if (chatHistory.length < 2) return;
   const lastMessage = chatHistory[chatHistory.length - 1];
   if (lastMessage.role !== "assistant") return;
   try {
@@ -286,9 +290,11 @@ async function persistCurrentConversation() {
       body: JSON.stringify({ messages: chatHistory, title }),
     });
     updateMemoryStatus("Saved securely in Cloudflare D1");
+    saveFailed = false;
     // Refresh the sidebar after a successful save.
     await refreshHistory();
   } catch (error) {
+    saveFailed = true;
     updateMemoryStatus("Not saved · Chat continues");
     showToast("AI replied, but history wasn't saved. Copy anything important.");
     console.warn("Could not save conversation:", error);
@@ -310,8 +316,7 @@ async function sendMessage(raw) {
   userInput.value = "";
   updateTextareaHeight();
   chatHistory.push({ role: "user", content: message });
-  // Keep the oldest messages out of the request. The on-screen transcript remains.
-  if (chatHistory.length > MAX_HISTORY) chatHistory = chatHistory.slice(-MAX_HISTORY);
+  // Keep the complete transcript for saving; bound only the AI request context.
 
   setBusy(true);
   let responseText = "";
@@ -320,7 +325,7 @@ async function sendMessage(raw) {
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: chatHistory }),
+      body: JSON.stringify({ messages: chatHistory.slice(-MAX_REQUEST_MESSAGES) }),
     });
     if (!response.ok) {
       throw new Error(response.status === 400 ? "Your message could not be processed." : "AI service unavailable (" + response.status + ").");
@@ -385,6 +390,7 @@ function resetChat() {
   if (isProcessing) return;
   chatHistory = [];
   conversationId = null;
+  saveFailed = false;
   chatMessages.replaceChildren();
   createMessage("assistant", WELCOME);
   setMode("overview");
@@ -434,3 +440,4 @@ document.addEventListener("keydown", (event) => {
 
 refreshHistoryButton.addEventListener("click", () => { if (!isProcessing) void refreshHistory(); });
 void refreshHistory();
+
