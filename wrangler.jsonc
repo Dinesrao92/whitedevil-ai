@@ -23,5 +23,17 @@
 			"binding": "AI"
 		}
 	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "whitedevil-memory-v51",
+			"database_id": "189e5893-6f3d-4709-860a-9cae3d63c0b8",
+			"migrations_dir": "migrations"
+		}
+	],
+	"vars": {
+		"ACCESS_TEAM_DOMAIN": "https://withered-pine-4dda.cloudflareaccess.com",
+		"ACCESS_AUD": "d0e1dba394c9fce4295e528b1c259e5cb018803f14ad5dd169c2420332700cb9"
+	},
 	"upload_source_maps": true
 }
