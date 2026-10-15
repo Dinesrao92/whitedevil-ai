@@ -6,10 +6,15 @@
   <meta name="theme-color" content="#0a0d16" />
   <meta name="description" content="WhiteDevil v5.1 — your private AI command center for construction coordination, work, planning, learning and demo forex." />
   <title>WhiteDevil v5.1 | Command Center</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/neural.css" />
   <link rel="stylesheet" href="/dashboard.css" />
   <script src="/chat.js" defer></script>
+  <script src="/neural.js" defer></script>
+  <script src="/neural-nav.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#user-input">Skip to conversation</a>
   <svg class="svg-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <symbol id="ic-spark" viewBox="0 0 24 24"><path d="m12 2 1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9L12 2ZM19 17l.7 2.3L22 20l-2.3.7L19 23l-.7-2.3L16 20l2.3-.7L19 17Z"/></symbol>
     <symbol id="ic-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
@@ -31,16 +36,16 @@
   </svg>
 
   <div class="app-shell" id="app-shell">
-    <div class="mobile-overlay" id="mobile-overlay" hidden></div>
+    <div class="mobile-overlay" id="mobile-overlay"></div>
     <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
       <div class="brand">
-        <div class="brand-mark"><svg class="icon brand-spark"><use href="#ic-spark"/></svg></div>
-        <div class="brand-copy"><strong>WhiteDevil<span class="brand-dot">.</span></strong><small>AI COMMAND CENTER</small></div>
+        <div class="brand-mark"><img src="/whitedevil-mark.svg" width="42" height="42" alt="" /></div>
+        <div class="brand-copy"><strong>WhiteDevil<span class="brand-dot">.</span></strong><small>NEURAL GLASS</small></div>
         <button class="icon-button sidebar-close" id="sidebar-close" type="button" aria-label="Close navigation"><svg class="icon"><use href="#ic-close"/></svg></button>
       </div>
 
       <div class="sidebar-inner">
-        <div class="workspace-label"><span class="workspace-avatar">W</span><span><strong>Personal workspace</strong><small>WhiteDevil v5.1</small></span><span class="workspace-chevron">⌄</span></div>
+        <div class="workspace-label"><span class="workspace-avatar">W</span><span><strong>Personal workspace</strong><small>WhiteDevil v5.1</small></span></div>
 
         <div class="nav-heading">WORKSPACE</div>
         <nav class="nav-list" aria-label="Assistant modes">
@@ -59,10 +64,10 @@
         <div class="sidebar-spacer"></div>
         <div class="sidebar-note">
           <span class="sidebar-note-icon"><svg class="icon"><use href="#ic-zap"/></svg></span>
-          <strong>One assistant. Many modes.</strong>
-          <p>Choose a workspace or start with a question. WhiteDevil adapts to the task.</p>
+          <strong>Built around your work.</strong>
+          <p>Your conversations stay in your workspace when saved history is connected.</p>
         </div>
-        <div class="sidebar-bottom"><span class="profile-avatar">D</span><div><strong>Dines</strong><small>Workspace owner</small></div><span class="profile-dots" aria-hidden="true">•••</span></div>
+        <div class="sidebar-bottom"><span class="profile-avatar">D</span><div><strong>Dines</strong><small>Workspace owner</small></div></div>
       </div>
     </aside>
 
@@ -70,41 +75,24 @@
       <div class="topbar">
         <div class="topbar-left">
           <button class="icon-button mobile-menu" id="mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg class="icon"><use href="#ic-menu"/></svg></button>
-          <span class="breadcrumb">Workspace</span><span class="slash">/</span><span class="breadcrumb-current">Command center</span>
+          <img class="topbar-logo" src="/whitedevil-mark.svg" width="25" height="25" alt="WhiteDevil" /><span class="breadcrumb">WhiteDevil OS</span><span class="slash">/</span><span class="breadcrumb-current">Neural Glass</span>
         </div>
         <div class="topbar-right"><span class="topbar-separator"></span><span class="access-pill"><svg class="icon"><use href="#ic-shield"/></svg>Cloudflare Access</span><span class="top-avatar">D</span></div>
       </div>
 
       <div class="main-content">
         <section class="welcome-section" aria-labelledby="welcome-title">
-          <div class="eyebrow"><span class="eyebrow-line"></span> YOUR AI WORKSPACE <span class="eyebrow-tiny">/ v5.0</span></div>
-          <h1 id="welcome-title">Good to see you, <span>Dines.</span></h1>
-          <p class="welcome-subtitle">One place to think, plan, coordinate and create. What are we working on today?</p>
+          <div class="eyebrow"><span class="eyebrow-line"></span> YOUR PERSONAL INTELLIGENCE <span class="eyebrow-tiny">/ v5.1</span></div>
+          <h1 id="welcome-title">Clear mind. <span>Infinite possibilities.</span></h1>
+          <p class="welcome-subtitle">Welcome back, Dines. Bring your next idea into focus.</p>
         </section>
 
-        <section class="feature-grid" aria-label="Get started">
-          <button type="button" class="feature-card feature-work" data-prompt="/work Help me prioritize today's architectural and MEP coordination tasks." data-mode="work">
-            <span class="feature-top"><span class="feature-icon"><svg class="icon"><use href="#ic-briefcase"/></svg></span><svg class="icon feature-go"><use href="#ic-arrow-right"/></svg></span>
-            <strong>Work & coordination</strong><span class="feature-description">RFIs, drawings, meetings & site issues</span>
-            <span class="feature-tag">CONSTRUCTION</span>
-          </button>
-          <button type="button" class="feature-card feature-personal" data-prompt="/plan Help me build a focused priority list for today." data-mode="personal">
-            <span class="feature-top"><span class="feature-icon"><svg class="icon"><use href="#ic-bulb"/></svg></span><svg class="icon feature-go"><use href="#ic-arrow-right"/></svg></span>
-            <strong>Think & plan</strong><span class="feature-description">Research, decisions, ideas & productivity</span>
-            <span class="feature-tag">EVERYDAY ASSISTANT</span>
-          </button>
-          <button type="button" class="feature-card feature-forex" data-prompt="/forex Help me create a demo-only forex analysis and risk checklist. Do not assume live market data." data-mode="forex">
-            <span class="feature-top"><span class="feature-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><svg class="icon feature-go"><use href="#ic-arrow-right"/></svg></span>
-            <strong>Forex research lab</strong><span class="feature-description">Strategies, journals & demo risk plans</span>
-            <span class="feature-tag">DEMO ONLY</span>
-          </button>
-        </section>
-
+        <div class="command-grid">
         <section class="chat-panel" aria-labelledby="chat-heading">
           <div class="chat-panel-head">
             <div class="chat-title-block">
               <span class="chat-title-icon"><svg class="icon"><use href="#ic-message"/></svg></span>
-              <div><h2 id="chat-heading">AI conversation</h2><p><span class="live-dot"></span><span id="mode-label">General assistant</span><span class="chat-head-middle"> · </span>powered by Workers AI</p></div>
+              <div><h2 id="chat-heading">AI conversation</h2><p><span id="mode-label">General assistant</span><span class="chat-head-middle"> · </span>Workers AI</p></div>
             </div>
             <button id="new-chat" type="button" class="new-chat-button"><svg class="icon"><use href="#ic-plus"/></svg><span>New chat</span></button>
           </div>
@@ -135,14 +123,13 @@
           </div>
         </section>
 
-        <div class="main-footer"><span>WhiteDevil v5.1 <span class="footer-bullet">·</span> Designed for focused work</span><span>AI can make mistakes. Verify important details.</span></div>
-      </div>
-    </main>
-
-    <aside class="rightbar" aria-label="Shortcuts and status">
-      <div class="rightbar-heading"><span class="eyebrow-line"></span> AT A GLANCE</div>
-      <div class="rightbar-greeting"><span class="rightbar-icon"><svg class="icon"><use href="#ic-spark"/></svg></span><div><strong>Your command center</strong><p>Ready when you are.</p></div></div>
-
+        <aside class="intelligence-rail" aria-label="Neural visualization and quick actions">
+          <section class="neural-panel" aria-label="Neural visualization">
+            <div class="neural-panel-head"><span>NEURAL INTERFACE</span><button id="motion-toggle" type="button" aria-pressed="false">Pause motion</button></div>
+            <div class="neural-stage"><canvas id="neural-canvas" aria-hidden="true"></canvas><div class="neural-caption"><span>WHITEDEVIL</span><strong>Space to think.</strong><p>Your ideas. A new dimension.</p></div></div>
+            <div class="neural-panel-footer">Decorative neural visualization</div>
+          </section>
+          <section class="actions-panel" aria-label="Quick actions">
       <div class="right-section-heading">QUICK ACTIONS</div>
       <div class="right-actions">
         <button type="button" class="right-action" data-prompt="/drawing Help me review an architectural drawing coordination issue. Ask me for discipline, drawing number and conflict."><svg class="icon"><use href="#ic-file"/></svg><span><strong>Drawing review</strong><small>Identify coordination gaps</small></span><svg class="icon right-arrow"><use href="#ic-arrow-right"/></svg></button>
@@ -151,17 +138,33 @@
         <button type="button" class="right-action" data-prompt="/build Help me plan a small software feature with clear steps and no paid dependencies."><svg class="icon"><use href="#ic-code"/></svg><span><strong>Build something</strong><small>Plan, code, improve</small></span><svg class="icon right-arrow"><use href="#ic-arrow-right"/></svg></button>
       </div>
 
-      <div class="right-section-heading right-section-margin">WORKSPACE NOTES</div>
-      <div class="status-card">
-        <span class="status-icon"><svg class="icon"><use href="#ic-shield"/></svg></span>
-        <strong>Private workspace</strong>
-        <p>Access is managed through your Cloudflare settings. Saved conversations are private to your verified Cloudflare Access account when Memory is connected.</p>
-        <div class="status-row"><span class="status-check">✓</span> Workers AI backend</div>
-        <div class="status-row"><span class="status-check">✓</span> Mobile-ready interface</div>
-        <div class="status-row"><span class="status-demo">●</span> Forex: research & demo only</div>
+          </section>
+        </aside>
+        </div>
+        <div class="section-label"><span>EXPLORE YOUR WORKSPACE</span><span>One assistant. Every dimension.</span></div>
+        <section class="feature-grid" aria-label="Get started">
+          <button type="button" class="feature-card feature-work" data-prompt="/work Help me prioritize today's architectural and MEP coordination tasks." data-mode="work">
+            <span class="feature-top"><span class="feature-icon"><svg class="icon"><use href="#ic-briefcase"/></svg></span><svg class="icon feature-go"><use href="#ic-arrow-right"/></svg></span>
+            <strong>Work & coordination</strong><span class="feature-description">RFIs, drawings, meetings & site issues</span>
+            <span class="feature-tag">CONSTRUCTION</span>
+          </button>
+          <button type="button" class="feature-card feature-personal" data-prompt="/plan Help me build a focused priority list for today." data-mode="personal">
+            <span class="feature-top"><span class="feature-icon"><svg class="icon"><use href="#ic-bulb"/></svg></span><svg class="icon feature-go"><use href="#ic-arrow-right"/></svg></span>
+            <strong>Think & plan</strong><span class="feature-description">Research, decisions, ideas & productivity</span>
+            <span class="feature-tag">EVERYDAY ASSISTANT</span>
+          </button>
+          <button type="button" class="feature-card feature-forex" data-prompt="/forex Help me create a demo-only forex analysis and risk checklist. Do not assume live market data." data-mode="forex">
+            <span class="feature-top"><span class="feature-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><svg class="icon feature-go"><use href="#ic-arrow-right"/></svg></span>
+            <strong>Forex research lab</strong><span class="feature-description">Strategies, journals & demo risk plans</span>
+            <span class="feature-tag">DEMO ONLY</span>
+          </button>
+        </section>
+
+        <div class="main-footer"><span>WhiteDevil v5.1 <span class="footer-bullet">·</span> Neural Glass interface</span><span>AI can make mistakes. Verify important details.</span></div>
       </div>
-      <div class="rightbar-footer">Made for the way you work. <span>✦</span></div>
-    </aside>
+    </main>
+
+
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>

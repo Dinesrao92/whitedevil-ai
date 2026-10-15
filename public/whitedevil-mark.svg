@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">WhiteDevil WD monogram</title>
+  <desc id="desc">An angular silver WD with sharp horn tips and a violet accent.</desc>
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fff"/><stop offset=".55" stop-color="#f0efff"/><stop offset="1" stop-color="#c7c8df"/></linearGradient>
+    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ad6aff"/><stop offset="1" stop-color="#7046ef"/></linearGradient>
+  </defs>
+  <g fill="url(#silver)">
+    <path d="M21 7C14 15 6 23 8 31c1 5 7 10 14 17l6-10-11-11c-5-6 1-15 4-20Z"/>
+    <path d="M107 7c7 8 15 16 13 24-1 5-7 10-14 17l-6-10 11-11c5-6-1-15-4-20Z"/>
+    <path d="M8 35 29 60 55 34v27l5 5V34h39l25 31-54 52V98l36-33-15-17H74v43c0 6-5 8-9 4L44 73 29 89 9 68Z"/>
+  </g>
+  <path fill="url(#violet)" d="m44 87 9 10 7 17-23-26 6-6Z"/>
+</svg>
