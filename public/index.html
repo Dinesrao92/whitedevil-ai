@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0a0d16" />
-  <meta name="description" content="WhiteDevil v5.0 — your private AI command center for construction coordination, work, planning, learning and demo forex." />
-  <title>WhiteDevil v5.0 | Command Center</title>
+  <meta name="description" content="WhiteDevil v5.1 — your private AI command center for construction coordination, work, planning, learning and demo forex." />
+  <title>WhiteDevil v5.1 | Command Center</title>
   <link rel="stylesheet" href="/dashboard.css" />
   <script src="/chat.js" defer></script>
 </head>
@@ -40,7 +40,7 @@
       </div>
 
       <div class="sidebar-inner">
-        <div class="workspace-label"><span class="workspace-avatar">W</span><span><strong>Personal workspace</strong><small>WhiteDevil v5.0</small></span><span class="workspace-chevron">⌄</span></div>
+        <div class="workspace-label"><span class="workspace-avatar">W</span><span><strong>Personal workspace</strong><small>WhiteDevil v5.1</small></span><span class="workspace-chevron">⌄</span></div>
 
         <div class="nav-heading">WORKSPACE</div>
         <nav class="nav-list" aria-label="Assistant modes">
@@ -52,6 +52,10 @@
           <button type="button" class="nav-item" data-mode="personal" data-command="/personal"><svg class="icon"><use href="#ic-bulb"/></svg><span>Personal assistant</span></button>
         </nav>
 
+        <section class="history-section" aria-label="Saved conversations">
+          <div class="history-heading"><span>RECENT CONVERSATIONS</span><button type="button" id="refresh-history" aria-label="Refresh saved conversations" title="Refresh saved conversations">↻</button></div>
+          <div id="history-list" class="history-list"><p class="history-empty">Connecting to saved history...</p></div>
+        </section>
         <div class="sidebar-spacer"></div>
         <div class="sidebar-note">
           <span class="sidebar-note-icon"><svg class="icon"><use href="#ic-zap"/></svg></span>
@@ -108,7 +112,7 @@
           <div class="chat-messages" id="chat-messages" aria-live="polite" aria-label="Conversation messages">
             <div class="message assistant-message">
               <span class="message-avatar assistant-avatar"><svg class="icon"><use href="#ic-spark"/></svg></span>
-              <div class="message-inner"><span class="message-meta">WHITEDEVIL <span>·</span> AI ASSISTANT</span><p>Hello Dines! I'm WhiteDevil v5.0, ready to help with construction work, planning, learning, code or demo forex research. Choose a shortcut or ask me anything.</p></div>
+              <div class="message-inner"><span class="message-meta">WHITEDEVIL <span>·</span> AI ASSISTANT</span><p>Hello Dines! I'm WhiteDevil v5.1, ready to help with construction work, planning, learning, code or demo forex research. Choose a shortcut or ask me anything.</p></div>
             </div>
           </div>
 
@@ -127,11 +131,11 @@
               <textarea id="user-input" rows="1" maxlength="12000" placeholder="Message WhiteDevil..." autocomplete="off"></textarea>
               <button type="submit" id="send-button" class="send-button" aria-label="Send message"><svg class="icon"><use href="#ic-arrow"/></svg></button>
             </form>
-            <div class="compose-footer"><span>Press <kbd>Enter</kbd> to send · <kbd>Shift + Enter</kbd> for a new line</span><span>Session-only chat · Not saved</span></div>
+            <div class="compose-footer"><span>Press <kbd>Enter</kbd> to send · <kbd>Shift + Enter</kbd> for a new line</span><span><span id="memory-status">Checking saved history...</span></span></div>
           </div>
         </section>
 
-        <div class="main-footer"><span>WhiteDevil v5.0 <span class="footer-bullet">·</span> Designed for focused work</span><span>AI can make mistakes. Verify important details.</span></div>
+        <div class="main-footer"><span>WhiteDevil v5.1 <span class="footer-bullet">·</span> Designed for focused work</span><span>AI can make mistakes. Verify important details.</span></div>
       </div>
     </main>
 
@@ -151,7 +155,7 @@
       <div class="status-card">
         <span class="status-icon"><svg class="icon"><use href="#ic-shield"/></svg></span>
         <strong>Private workspace</strong>
-        <p>Access is managed through your Cloudflare settings. Conversations on this page are not permanently stored.</p>
+        <p>Access is managed through your Cloudflare settings. Saved conversations are private to your verified Cloudflare Access account when Memory is connected.</p>
         <div class="status-row"><span class="status-check">✓</span> Workers AI backend</div>
         <div class="status-row"><span class="status-check">✓</span> Mobile-ready interface</div>
         <div class="status-row"><span class="status-demo">●</span> Forex: research & demo only</div>

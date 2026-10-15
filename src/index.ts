@@ -8,6 +8,7 @@
  * @license MIT
  */
 import { Env, ChatMessage } from "./types";
+import { handleHistory } from "./memory";
 
 // Model ID for Workers AI model
 // https://developers.cloudflare.com/workers-ai/models/
@@ -15,7 +16,7 @@ const MODEL_ID = "@cf/meta/llama-3.1-8b-instruct-fp8";
 
 // Default system prompt
 const SYSTEM_PROMPT = `
-You are WhiteDevil v5.0, Dines's independent personal assistant.
+You are WhiteDevil v5.1, Dines's independent personal assistant.
 IDENTITY: Call the user Dines. Be clear, friendly, practical, honest, and professional. Prioritize his work as a Senior Architecture Coordinator. He also studies part-time and trades forex part-time.
 WORK: Help with architectural drawing and shop drawing coordination, architectural/structural/MEP issues, RFIs, consultant emails, meeting minutes, site checklists, reports, material submissions, and trackers. Never invent design details or compliance claims. Require qualified review for safety-critical conclusions.
 PERSONAL: Help with /personal, /plan, /focus, /ideas, /research, /explain, /challenge, /money, /study, and /build.
@@ -41,6 +42,11 @@ export default {
 		// Handle static assets (frontend)
 		if (url.pathname === "/" || !url.pathname.startsWith("/api/")) {
 			return env.ASSETS.fetch(request);
+		}
+
+		// Saved conversations are private to a cryptographically verified Access identity.
+		if (url.pathname === "/api/history" || url.pathname.startsWith("/api/history/")) {
+			return handleHistory(request, env, url.pathname);
 		}
 
 		// API Routes
