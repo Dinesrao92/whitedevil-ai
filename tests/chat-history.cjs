@@ -9,16 +9,17 @@ const json = value => ({ ok: true, json: async () => copy(value) });
 
 function element() {
   return {
-    children: [], style: {}, dataset: {}, value: '', textContent: '',
+    children: [], style: {}, dataset: {}, attributes: {}, value: '', textContent: '',
     classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
     append(...items) { this.children.push(...items); },
     appendChild(item) { this.children.push(item); },
     replaceChildren(...items) { this.children = items; },
-    setAttribute() {}, removeAttribute() {}, addEventListener() {}, focus() {},
+    setAttribute(name, value) { this.attributes[name] = value; },
+    removeAttribute(name) { delete this.attributes[name]; }, addEventListener() {}, focus() {},
   };
 }
 
-function dashboard({ initialList, failChat = false, failSave = false, unavailable = false, store = new Map() } = {}) {
+function dashboard({ initialList, failChat = false, emptyReply = false, failSave = false, unavailable = false, store = new Map() } = {}) {
   const elements = new Map();
   const requests = [];
   let firstList = true;
@@ -31,7 +32,7 @@ function dashboard({ initialList, failChat = false, failSave = false, unavailabl
       createElement: element, createElementNS: element,
       querySelectorAll: () => [], addEventListener() {},
     },
-    TextDecoder, console: { warn() {}, error() {} },
+    TextDecoder, confirm: () => true, console: { warn() {}, error() {} },
     setTimeout: () => 0, clearTimeout() {},
     fetch: async (path, options = {}) => {
       const method = options.method || 'GET';
@@ -39,7 +40,7 @@ function dashboard({ initialList, failChat = false, failSave = false, unavailabl
       requests.push({ path, method, body });
       if (path === '/api/chat') {
         if (failChat) throw new Error('AI unavailable');
-        const text = `reply to ${body.messages.at(-1).content}`;
+        const text = emptyReply ? "" : `reply to ${body.messages.at(-1).content}`;
         let read = false;
         return { ok: true, body: { getReader: () => ({ read: async () => {
           if (read) return { done: true };
@@ -151,4 +152,81 @@ test('late initial listing cannot clear a failed-save warning', async () => {
   await settle();
   assert.equal(app.elements.get('memory-status').textContent, 'Not saved · Chat continues');
   assert.equal(app.run('chatHistory.length'), 2);
+});
+
+test('pending history load blocks send, reset, deletion and overlapping loads', async () => {
+  const saved = { id: 'old', title: 'Older chat', messages: [
+    { role: 'user', content: 'Old question' }, { role: 'assistant', content: 'Old reply' },
+  ] };
+  const app = dashboard({ store: new Map([['old', saved]]) });
+  await settle();
+  const fetch = app.context.fetch;
+  let resolveLoad;
+  app.context.fetch = (path, options) => path === '/api/history/old'
+    ? new Promise(resolve => { resolveLoad = resolve; }) : fetch(path, options);
+  const loading = app.context.openSavedConversation('old');
+  assert.equal(app.run('isProcessing'), true);
+  assert.equal(app.elements.get('user-input').disabled, true);
+  await app.context.sendMessage('Do not send during load');
+  app.context.resetChat();
+  await app.context.openSavedConversation('other');
+  await app.context.deleteSavedConversation('other', 'Other');
+  assert.equal(app.requests.some(r => r.path === '/api/chat' || r.path === '/api/history/other'), false);
+  resolveLoad(json({ conversation: saved }));
+  await loading;
+  assert.deepEqual(copy(app.run('chatHistory')), saved.messages);
+  assert.equal(app.run('conversationId'), 'old');
+  assert.equal(app.run('isProcessing'), false);
+  assert.equal(app.elements.get('history-list').children[0].children[0].attributes['aria-current'], 'true');
+  app.context.resetChat();
+  assert.equal(app.run('conversationId'), null);
+  assert.equal(app.elements.get('history-list').children[0].children[0].attributes['aria-current'], undefined);
+});
+
+test('failed history load unlocks input and preserves the current transcript', async () => {
+  const app = dashboard();
+  await settle();
+  await app.context.sendMessage('Keep this conversation');
+  const before = copy(app.run('chatHistory'));
+  const id = app.run('conversationId');
+  const fetch = app.context.fetch;
+  app.context.fetch = (path, options) => path === '/api/history/missing'
+    ? Promise.reject(new Error('History offline')) : fetch(path, options);
+  await app.context.openSavedConversation('missing');
+  assert.deepEqual(copy(app.run('chatHistory')), before);
+  assert.equal(app.run('conversationId'), id);
+  assert.equal(app.run('isProcessing'), false);
+  assert.equal(app.elements.get('user-input').disabled, false);
+});
+
+test('pending deletion blocks a response from being saved into the deleted conversation', async () => {
+  const app = dashboard();
+  await settle();
+  await app.context.sendMessage('Delete this conversation');
+  const fetch = app.context.fetch;
+  let finishDelete;
+  app.context.fetch = (path, options) => options?.method === 'DELETE'
+    ? new Promise(resolve => { finishDelete = () => { app.store.delete('chat-1'); resolve(json({ deleted: true })); }; })
+    : fetch(path, options);
+  const deleting = app.context.deleteSavedConversation('chat-1', 'Delete this conversation');
+  assert.equal(app.run('isProcessing'), true);
+  await app.context.sendMessage('Do not save during delete');
+  assert.equal(app.requests.filter(r => r.path === '/api/chat').length, 1);
+  finishDelete();
+  await deleting;
+  assert.equal(app.run('conversationId'), null);
+  assert.equal(app.run('chatHistory.length'), 0);
+  assert.equal(app.run('isProcessing'), false);
+});
+
+test('empty AI response rolls back the failed turn without saving or changing old history', async () => {
+  const app = dashboard({ emptyReply: true });
+  await settle();
+  const saved = [{ role: 'user', content: 'Existing question' }, { role: 'assistant', content: 'Existing answer' }];
+  app.context.saved = copy(saved);
+  app.run('chatHistory = saved');
+  await app.context.sendMessage('Empty result');
+  assert.deepEqual(copy(app.run('chatHistory')), saved);
+  assert.equal(app.requests.some(r => r.method === 'PUT' || r.method === 'POST' && r.path === '/api/history'), false);
+  assert.equal(app.run('isProcessing'), false);
 });

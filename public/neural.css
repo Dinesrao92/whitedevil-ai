@@ -1,0 +1,14 @@
+.neural-panel{position:relative;isolation:isolate;overflow:hidden;min-width:0;border:1px solid rgba(170,147,255,.19);border-radius:26px;background:radial-gradient(ellipse at 50% 40%,rgba(80,41,166,.16),transparent 62%),linear-gradient(145deg,rgba(27,22,51,.82),rgba(13,16,31,.88));box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 24px 60px rgba(0,0,0,.12)}
+.neural-panel::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(154,133,217,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(154,133,217,.035) 1px,transparent 1px);background-size:38px 38px;mask-image:radial-gradient(ellipse at center,#000,transparent 75%)}
+.neural-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:22px 22px 0;color:#b3a6d2;font-family:inherit;font-size:10px;font-weight:600;line-height:1.4;letter-spacing:2px}
+.neural-panel-head>span{font-size:10px;font-weight:600;white-space:nowrap}
+#motion-toggle{appearance:none;color:#b4a8cc;border:1px solid rgba(161,145,200,.17);border-radius:20px;padding:5px 9px;background:rgba(150,125,230,.04);font:inherit;font-size:9px;letter-spacing:0;cursor:pointer;transition:background .2s,color .2s}
+#motion-toggle:hover{background:rgba(150,125,230,.14);color:#eee9ff}#motion-toggle:focus-visible{outline:2px solid #b9a2ff;outline-offset:4px}
+.neural-stage{position:relative;min-height:395px;height:clamp(395px,36vw,475px)}
+#neural-canvas{display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.neural-caption{position:absolute;bottom:25px;left:15px;right:15px;text-align:center;pointer-events:none}
+.neural-caption>span{display:block;margin-bottom:10px;color:#ad96dc;font-size:9px;font-weight:600;letter-spacing:4px}
+.neural-caption strong{display:block;color:#f2ebff;font-size:24px;font-weight:500;letter-spacing:-.8px;line-height:1.3}
+.neural-caption p{margin:9px 0 0;color:#9c94b5;font-size:11px;letter-spacing:.15px}
+.neural-panel-footer{padding:12px 20px;border-top:1px solid rgba(169,146,219,.09);text-align:center;color:#756e8d;font-size:9px;letter-spacing:.35px}
+@media(max-width:600px){.neural-stage{height:405px;min-height:405px}.neural-panel-head{padding:18px 18px 0}.neural-caption{bottom:22px}}

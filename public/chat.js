@@ -112,13 +112,13 @@ function showToast(message) {
   toastTimeout = setTimeout(() => toast.classList.remove("visible"), 3000);
 }
 
-function setBusy(busy) {
+function setBusy(busy, responding = busy) {
   isProcessing = busy;
   userInput.disabled = busy;
   sendButton.disabled = busy;
   newChatButton.disabled = busy;
   refreshHistoryButton.disabled = busy;
-  typingIndicator.classList.toggle("visible", busy);
+  typingIndicator.classList.toggle("visible", responding);
   chatMessages.setAttribute("aria-busy", String(busy));
 }
 
@@ -196,6 +196,7 @@ function drawHistoryList() {
     load.className = "history-load" + (conversationId === item.id ? " selected" : "");
     load.textContent = item.title;
     load.title = item.title;
+    if (conversationId === item.id) load.setAttribute("aria-current", "true");
     load.addEventListener("click", () => { void openSavedConversation(item.id); });
     const remove = document.createElement("button");
     remove.type = "button";
@@ -228,7 +229,9 @@ async function refreshHistory() {
 }
 
 async function openSavedConversation(id) {
-  if (isProcessing) return showToast("Wait for the current response first.");
+  if (isProcessing) return showToast("Wait for the current operation first.");
+  // Lock transcript mutations until the requested conversation has loaded.
+  setBusy(true, false);
   try {
     const { conversation } = await historyRequest("/" + encodeURIComponent(id));
     if (!conversation || !Array.isArray(conversation.messages)) throw new Error("Invalid history data");
@@ -251,12 +254,15 @@ async function openSavedConversation(id) {
     updateMemoryStatus("Saved securely in Cloudflare D1");
   } catch (error) {
     showToast(error instanceof Error ? error.message : "Couldn't load conversation");
+  } finally {
+    setBusy(false);
   }
 }
 
 async function deleteSavedConversation(id, title) {
-  if (isProcessing) return showToast("Wait for the current response first.");
+  if (isProcessing) return showToast("Wait for the current operation first.");
   if (!confirm('Permanently delete "' + title + '"? This cannot be undone.')) return;
+  setBusy(true, false);
   try {
     await historyRequest("/" + encodeURIComponent(id), { method: "DELETE" });
     if (conversationId === id) {
@@ -270,6 +276,8 @@ async function deleteSavedConversation(id, title) {
     showToast("Saved conversation deleted.");
   } catch (error) {
     showToast(error instanceof Error ? error.message : "Couldn't delete conversation");
+  } finally {
+    setBusy(false);
   }
 }
 
@@ -370,6 +378,8 @@ async function sendMessage(raw) {
       await persistCurrentConversation();
     } else {
       assistantText.textContent = "I couldn't generate a response this time. Please try again.";
+      // Empty responses are failed turns, just like rejected or interrupted requests.
+      if (chatHistory[chatHistory.length - 1]?.role === "user") chatHistory.pop();
     }
   } catch (error) {
     console.error("WhiteDevil chat request failed:", error);
