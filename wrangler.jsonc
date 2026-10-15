@@ -19,6 +19,10 @@
 		"binding": "AI"
 	},
 	"previews": {
+		// Reuse this preview's owner secret without putting its value in Git.
+		"unsafe": {
+			"bindings": [{ "name": "MEMORY_OWNER_EMAIL", "type": "inherit" }]
+		},
 		"vars": {
 			"ACCESS_TEAM_DOMAIN": "https://withered-pine-4dda.cloudflareaccess.com",
 			"ACCESS_AUD": "d0e1dba394c9fce4295e528b1c259e5cb018803f14ad5dd169c2420332700cb9"
@@ -47,3 +51,4 @@
 	},
 	"upload_source_maps": true
 }
+
