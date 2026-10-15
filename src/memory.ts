@@ -48,7 +48,8 @@ let cachedKeys: { until: number; keys: JsonWebKey[] } | undefined;
 async function getKeys(teamDomain: string): Promise<JsonWebKey[]> {
   if (cachedKeys && cachedKeys.until > Date.now()) return cachedKeys.keys;
   const url = teamDomain + "/cdn-cgi/access/certs";
-  const res = await fetch(url, { headers: { accept: "application/json" }, redirect: "error" });
+  // Workers does not support redirect: "error". Manual plus !ok rejects redirects.
+  const res = await fetch(url, { headers: { accept: "application/json" }, redirect: "manual" });
   if (!res.ok) throw new Error("Could not retrieve Cloudflare Access signing keys");
   const data = await res.json() as { keys?: JsonWebKey[] };
   if (!Array.isArray(data.keys) || data.keys.length === 0) throw new Error("Missing Cloudflare signing keys");
