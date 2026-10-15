@@ -335,3 +335,9 @@ body::before { content: ""; position: fixed; inset: 0; pointer-events: none; bac
 #user-input:focus-visible { outline: 1px solid #c4a3f57a; outline-offset: 4px; border-radius: 3px; }
 #motion-toggle { min-height: 32px; }
 @media (min-width: 1001px) { .neural-stage { height: 350px; min-height: 350px; } }
+
+/* Selected WD monogram: keep the silhouette legible at navigation scale. */
+.brand-mark { width: 42px; height: 46px; flex: 0 0 42px; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.brand-mark img { display: block; width: 42px; height: 42px; }
+.topbar-logo { display: block; flex: 0 0 25px; }
+@media (max-width: 360px) { .topbar-left { gap: 7px; } .topbar-logo { width: 22px; height: 22px; flex-basis: 22px; } }
