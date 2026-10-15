@@ -56,36 +56,42 @@ async function getKeys(teamDomain: string): Promise<JsonWebKey[]> {
   return data.keys;
 }
 
+/** Log only fixed reason codes, never JWTs, claims, emails, or secret values. */
+function rejectAccess(reason: string): null {
+  console.warn("History authentication rejected:", reason);
+  return null;
+}
+
 async function verifyAccess(request: Request, env: Env): Promise<AccessClaims | null> {
-  if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || !env.MEMORY_OWNER_EMAIL) return null;
+  if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || !env.MEMORY_OWNER_EMAIL) return rejectAccess("missing_config");
   const expectedIssuer = env.ACCESS_TEAM_DOMAIN.replace(/\/+$/, "");
-  if (!/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/.test(expectedIssuer)) return null;
+  if (!/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/.test(expectedIssuer)) return rejectAccess("invalid_issuer_config");
   const token = request.headers.get("cf-access-jwt-assertion");
-  if (!token || token.length > 12000) return null;
+  if (!token || token.length > 12000) return rejectAccess("missing_or_oversized_token");
   const parts = token.split(".");
-  if (parts.length !== 3) return null;
+  if (parts.length !== 3) return rejectAccess("invalid_token_parts");
   try {
     const header = decodeJson(parts[0]);
     const payload = decodeJson(parts[1]);
-    if (header.alg !== "RS256" || typeof header.kid !== "string") return null;
-    if (payload.iss !== expectedIssuer || typeof payload.sub !== "string" || !payload.sub) return null;
+    if (header.alg !== "RS256" || typeof header.kid !== "string") return rejectAccess("unsupported_header");
+    if (payload.iss !== expectedIssuer || typeof payload.sub !== "string" || !payload.sub) return rejectAccess("issuer_or_subject_mismatch");
     const audiences = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
-    if (!audiences.includes(env.ACCESS_AUD)) return null;
+    if (!audiences.includes(env.ACCESS_AUD)) return rejectAccess("audience_mismatch");
     const now = Math.floor(Date.now() / 1000);
-    if (typeof payload.exp !== "number" || payload.exp <= now) return null;
-    if (typeof payload.iat !== "number" || payload.iat > now + 60) return null;
-    if (typeof payload.nbf === "number" && payload.nbf > now + 60) return null;
-    if (typeof payload.email !== "string" || payload.email.toLowerCase() !== env.MEMORY_OWNER_EMAIL.toLowerCase()) return null;
+    if (typeof payload.exp !== "number" || payload.exp <= now) return rejectAccess("expired_or_missing_exp");
+    if (typeof payload.iat !== "number" || payload.iat > now + 60) return rejectAccess("invalid_iat");
+    if (typeof payload.nbf === "number" && payload.nbf > now + 60) return rejectAccess("not_yet_valid");
+    if (typeof payload.email !== "string" || payload.email.toLowerCase() !== env.MEMORY_OWNER_EMAIL.toLowerCase()) return rejectAccess("owner_mismatch");
     const keys = await getKeys(expectedIssuer);
     const jwk = keys.find(key => { const signingKey = key as JsonWebKey & { kid?: string; alg?: string }; return signingKey.kid === header.kid && signingKey.kty === "RSA" && (!signingKey.alg || signingKey.alg === "RS256"); });
-    if (!jwk) return null;
+    if (!jwk) return rejectAccess("unknown_signing_key");
     const publicKey = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
     const signed = new TextEncoder().encode(parts[0] + "." + parts[1]);
     const signature = decodeB64Url(parts[2]);
-    if (!(await crypto.subtle.verify("RSASSA-PKCS1-v1_5", publicKey, signature, signed))) return null;
+    if (!(await crypto.subtle.verify("RSASSA-PKCS1-v1_5", publicKey, signature, signed))) return rejectAccess("invalid_signature");
     return { sub: payload.sub, email: payload.email };
   } catch {
-    return null;
+    return rejectAccess("verification_exception");
   }
 }
 
@@ -168,3 +174,4 @@ export async function handleHistory(request: Request, env: Env, pathname: string
     return response({ error: "Memory is temporarily unavailable." }, 503);
   }
 }
+
